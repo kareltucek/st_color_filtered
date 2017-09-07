@@ -125,12 +125,34 @@ typedef struct {
 	signed char crlf;      /* crlf mode          */
 } Key;
 
+static short tolerance = 0;
+static short ctolerance = 0;
+static Bool toleranceon = 1;
+static Bool inverseon = 0;
+
+short get_tolerance(){
+  return tolerance;
+}
+
+short get_ctolerance(){
+  return ctolerance;
+}
+
+short get_toleranceon(){
+  return toleranceon;
+}
+
+short get_inverseon(){
+  return inverseon;
+}
+
 /* function definitions used in config.h */
 static void clipcopy(const Arg *);
 static void clippaste(const Arg *);
 static void numlock(const Arg *);
 static void selpaste(const Arg *);
 static void zoom(const Arg *);
+static void czoom(const Arg *);
 static void zoomabs(const Arg *);
 static void zoomreset(const Arg *);
 static void printsel(const Arg *);
@@ -2697,3 +2719,28 @@ usage(void)
 	    "          [-T title] [-t title] [-w windowid] -l line"
 	    " [stty_args ...]\n", argv0, argv0);
 }
+
+void
+czoom(const Arg *arg) {
+  //toleranceon = (-21 < ctolerance && ctolerance < 21);
+
+  ctolerance += arg->i;
+  if(ctolerance > 31)
+  {
+    ctolerance = -21;
+    inverseon = !inverseon;
+  }
+  if(ctolerance < -21)
+  {
+    ctolerance = 31;
+    inverseon = !inverseon;
+  }
+
+  tolerance = (-21 < ctolerance && ctolerance < 31) ? ctolerance : 0;
+ 
+  printf("changing tolerance to %i\n", ctolerance);
+
+	redraw();
+	xhints();
+}
+

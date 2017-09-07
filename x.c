@@ -983,6 +983,152 @@ xinit(void)
 		xsel.xtarget = XA_STRING;
 }
 
+/*moje normalizace barev*/
+extern short get_tolerance();
+extern short get_ctolerance();
+extern Bool get_toleranceon();
+extern Bool get_inverseon();
+
+#define MAXUSHORT 65535
+#define METHODA
+
+#ifdef METHODB
+
+#define BALANCE 0
+#define TOLERANCY (40000+tolerance*1000)
+#define TRASHOLDA TOLERANCY-BALANCE
+#define TRASHOLDB TOLERANCY 
+#define TRASHOLDC TOLERANCY+BALANCE
+#define IA MAXUSHORT-TRASHOLDA
+#define IB MAXUSHORT-TRASHOLDB
+#define IC MAXUSHORT-TRASHOLDC
+void normcolor_fg_(unsigned short * r, unsigned short * g, unsigned short * b)
+{
+  if(!toleranceon) return;
+#ifdef DBG
+  printf("fg in %i %i %i", *r, *g, *b);
+#endif
+  *r = MAXUSHORT - *r;
+  *b = MAXUSHORT - *b;
+  *g = MAXUSHORT - *g;
+#ifdef DBG
+  printf(" {fg calc in %i %i %i}", *r, *g, *b);
+#endif
+  if(*r > IA || *g > IB || *b > IC)
+  {
+    float k;
+    if(*r >  IA)
+      k = ((float)IA) / ((float)*r);
+    else if (*g > IB)
+      k = ((float)IB) / ((float)*g);
+    else if (*b > IC)
+      k = ((float)IC) / ((float)*b);
+#ifdef DBG
+   printf(" {fg koef is %f}", k);
+#endif
+    *r = k * *r;
+    *g = k * *g;
+    *b = k * *b;
+  }
+#ifdef DBG
+  printf(" {fg calc out %i %i %i}", *r, *g, *b);
+#endif
+  *r = MAXUSHORT - *r;
+  *b = MAXUSHORT - *b;
+  *g = MAXUSHORT - *g;
+#ifdef DBG
+  printf("fg out %i %i %i\n", *r, *g, *b);
+#endif
+}
+
+
+#define TRASHOLDD (10000)
+void normcolor_bg_(unsigned short * r, unsigned short * g, unsigned short * b)
+{
+  if(!toleranceon) return;
+  if(*r > TRASHOLDD || *g > TRASHOLDD || *b > TRASHOLDD)
+  {
+    unsigned short m = *r > *b ? *r : *b; 
+    m = m > *g ? m : *g; 
+    m = m == 0 ? 1 : m;
+    float k = (float)TRASHOLDD / m;
+    *r = k * *r;
+    *g = k * *g;
+    *b = k * *b;
+  }
+}
+#else
+
+#define PERCENT (15+get_tolerance()*3/4)
+#define ALLOWED_VAL (3*MAXUSHORT*PERCENT/100)
+
+void normcolor_bg_(unsigned short * r, unsigned short * g, unsigned short * b)
+{
+  if(!get_toleranceon()) return;
+  int sum = ((int)*r) + ((int)*g) + ((int)*b);
+  if(sum>ALLOWED_VAL)
+  {
+    sum = sum == 0 ? 1 : sum;
+    float koef = (float)ALLOWED_VAL/(float)sum;
+    *r = koef**r;
+    *g = koef**g;
+    *b = koef**b;
+  }
+//  if(get_inverseon())
+//  {
+//    if( *r == 0 && *b == 0 && *g == 0)
+//    {
+//      *r = (MAXUSHORT - *r);
+//      *b = (MAXUSHORT - *b);
+//      *g = (MAXUSHORT - *g);
+//    }
+//  }
+}
+
+void normcolor_fg_(unsigned short * r, unsigned short * g, unsigned short * b)
+{
+  if(!get_toleranceon()) return;
+  *r = MAXUSHORT - *r;
+  *b = MAXUSHORT - *b;
+  *g = MAXUSHORT - *g;
+  normcolor_bg_(r,g,b); 
+  *r = (MAXUSHORT - *r);
+  *b = (MAXUSHORT - *b);
+  *g = (MAXUSHORT - *g);
+//  if(get_inverseon())
+//  {
+//    *r = (*r);
+//    *b = (*b);
+//    *g = (*g);
+//  }
+}
+#endif
+
+void normcolor_bg(unsigned short * r, unsigned short * g, unsigned short * b)
+{
+  if(get_inverseon())
+  {
+    if(*r == 0 && *g == 0 && *b == 0)
+    {
+      *r = MAXUSHORT;
+      *g = MAXUSHORT;
+      *b = MAXUSHORT;
+    }
+    else
+      normcolor_fg_(r,g,b);
+  }
+  else
+    normcolor_bg_(r,g,b);
+}
+
+void normcolor_fg(unsigned short * r, unsigned short * g, unsigned short * b)
+{
+  if(get_inverseon())
+    normcolor_bg_(r,g,b);
+  else
+    normcolor_fg_(r,g,b);
+}
+
 int
 xmakeglyphfontspecs(XftGlyphFontSpec *specs, const Glyph *glyphs, int len, int x, int y)
 {
@@ -1199,6 +1345,16 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
 		XftColorAllocValue(xw.dpy, xw.vis, xw.cmap, &colfg, &revfg);
 		fg = &revfg;
 	}
+
+    /*moje normalizace barev*/
+    truefg = *fg;
+    truebg = *bg;
+    fg = &truefg;
+    bg = &truebg;
+    normcolor_fg(&fg->color.red, &fg->color.green, &fg->color.blue);
+
+    if(!(base.mode & MODE_APPCURSOR))
+      normcolor_bg(&bg->color.red, &bg->color.green, &bg->color.blue);
 
 	if (base.mode & ATTR_BLINK && term.mode & MODE_BLINK)
 		fg = bg;
