@@ -1351,7 +1351,8 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
     truebg = *bg;
     fg = &truefg;
     bg = &truebg;
-    normcolor_fg(&fg->color.red, &fg->color.green, &fg->color.blue);
+    if(!(base.mode & MODE_APPCURSOR))
+      normcolor_fg(&fg->color.red, &fg->color.green, &fg->color.blue);
 
     if(!(base.mode & MODE_APPCURSOR))
       normcolor_bg(&bg->color.red, &bg->color.green, &bg->color.blue);
