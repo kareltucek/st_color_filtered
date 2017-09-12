@@ -5,8 +5,8 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-//char font[] = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
-char font[] = "xos4 Terminus:pixelsize=12:antialias=true:autohint=true";
+char font[] = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
+//char font[] = "xos4 Terminus:pixelsize=12:antialias=true:autohint=true";
 int borderpx = 2;
 
 /*
@@ -175,6 +175,7 @@ Shortcut shortcuts[] = {
 	{ MODKEY,              XK_Next,        zoom,          {.f = -1} },
 	{ MODKEY,              XK_Home,        czoom,          {.i = +4} },
 	{ MODKEY,              XK_End,         czoom,          {.i = -4} },
+	{ MODKEY,              XK_Insert,      xselpaste,      {.i =  0} },
 	{ MODKEY,              XK_C,           clipcopy,       {.i =  0} },
 	{ MODKEY,              XK_V,           clippaste,      {.i =  0} },
 	{ MODKEY,              XK_Y,           selpaste,       {.i =  0} },

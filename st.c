@@ -2737,8 +2737,6 @@ czoom(const Arg *arg) {
   }
 
   tolerance = (-21 < ctolerance && ctolerance < 31) ? ctolerance : 0;
- 
-  printf("changing tolerance to %i\n", ctolerance);
 
 	redraw();
 	xhints();
