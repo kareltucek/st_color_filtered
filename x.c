@@ -1126,7 +1126,16 @@ void normcolor_bg(unsigned short * r, unsigned short * g, unsigned short * b)
 void normcolor_fg(unsigned short * r, unsigned short * g, unsigned short * b)
 {
   if(get_inverseon())
-    normcolor_bg_(r,g,b);
+  {
+    if(*r == 255 && *g == 255 && *b == 255)
+    {
+      *r = 0;
+      *g = 0;
+      *b = 0;
+    }
+    else
+      normcolor_bg_(r,g,b);
+  }
   else
     normcolor_fg_(r,g,b);
 }
