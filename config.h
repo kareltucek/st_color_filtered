@@ -5,8 +5,8 @@
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char *font = "Liberation Mono:pixelsize=16:antialias=true:autohint=true";
-//static char *font = "Liberation Mono:pixelsize=12:antialias=true:autohint=true";
+static char font[] = "Liberation Mono:size=10:antialias=true:autohint=true:dpi=163";
+
 static int borderpx = 2;
 
 /*
@@ -83,6 +83,9 @@ char *termname = "st-256color";
  */
 unsigned int tabspaces = 8;
 
+/* bg opacity */
+float alpha = 0.6;
+
 /* Terminal colors (16 first used in escape sequence) */
 static const char *colorname[] = {
 	/* 8 normal colors */
@@ -110,6 +113,13 @@ static const char *colorname[] = {
 	/* more colors can be added after 255 to use with DefaultXX */
 	"#ff0000",
 	"#00ffff",
+    /*
+=======
+	"#cccccc",
+	"#555555",
+	"black",
+>>>>>>> alpha
+*/
 };
 
 
@@ -119,6 +129,12 @@ static const char *colorname[] = {
  */
 unsigned int defaultfg = 15;
 unsigned int defaultbg = 0;
+/*
+=======
+unsigned int defaultfg = 7;
+unsigned int defaultbg = 258;
+>>>>>>> alpha
+*/
 static unsigned int defaultcs = 256;
 static unsigned int defaultrcs = 257;
 
@@ -205,6 +221,10 @@ static Shortcut shortcuts[] = {
  * * 0: no value
  * * > 0: cursor application mode enabled
  * * < 0: cursor application mode disabled
+ * crlf value
+ * * 0: no value
+ * * > 0: crlf mode is enabled
+ * * < 0: crlf mode is disabled
  *
  * Be careful with the order of the definitions because st searches in
  * this table sequentially, so any XK_ANY_MOD must be in the last
