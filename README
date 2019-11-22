@@ -1,3 +1,14 @@
+This is my fork of st. It contains:
+
+- my custom color filter (normalizes background to be dark and foreground to be light.
+- "standard" clipboard fix
+- "standard" scrolling patch
+- "standard" alpha patch
+
+
+Original README
+===============
+
 st - simple terminal
 --------------------
 st is a simple terminal emulator for X which sucks less.
